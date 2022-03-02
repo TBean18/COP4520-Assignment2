@@ -12,11 +12,14 @@ public class Party {
      * 
      */
     private static int NUM_THREADS = 10;
+    public static final boolean IS_VERBOSE = false;
+    public static final boolean IS_FAIR = false;
 
     public static void main(String[] args) {
 
         Guests g = new Guests(NUM_THREADS);
         startAndWaitForThreads(g);
+        System.out.printf("All %d Guests have Visited the Maze%n", NUM_THREADS);
     }
 
     public static void startAndWaitForThreads(Runnable r) {

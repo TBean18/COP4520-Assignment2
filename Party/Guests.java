@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Guests implements Runnable {
 
-    Lock mazeInvitation = new ReentrantLock(true);
+    Lock mazeInvitation = new ReentrantLock(Party.IS_FAIR);
     private AtomicBoolean complete = new AtomicBoolean(false);
     // Game starts with a cupcake at the exit
     private boolean isCupcake = true;
@@ -29,6 +29,30 @@ public class Guests implements Runnable {
             eaten = enterMaze(id);
         }
 
+        while (!complete.get()) {
+            busyEnterMaze(id);
+        }
+
+    }
+
+    // Simualates the case where a guest is forced to enter the maze after they have
+    // already eaten their assigned cup cake
+    private void busyEnterMaze(int id) {
+        // Only one thread can enter at a time (Mutual Exclusion)
+        // Only one guest will be invited to the maze at a time
+        // Synchronized has no fairness policy
+        mazeInvitation.lock();
+
+        try {
+            log(() -> {
+                System.out.println(id + " enters maze having already eaten a cupcake");
+                System.out.println(id + " follows the plan and leaves without inspecting the cupcake");
+            });
+
+        } finally {
+            mazeInvitation.unlock();
+        }
+
     }
 
     // Returns: true if a cupcake is eaten, otherwise false;
@@ -40,14 +64,21 @@ public class Guests implements Runnable {
         mazeInvitation.lock();
 
         try {
-            System.out.println(ID + " enters maze");
+            log(() -> {
+                System.out.println(ID + " enters maze");
+            });
+
             if (ID == 0 && !isCupcake) {
                 numConfirmed++;
-                System.out.printf("Missing Cupcake detected numConfirmed: %d%n", numConfirmed);
+                log(() -> {
+                    System.out.printf("Missing Cupcake detected numConfirmed: %d%n", numConfirmed);
+                });
                 // replace the cupcake
                 isCupcake = true;
                 if (numConfirmed >= (N - 1)) {
-                    System.out.printf("Numconfirmed (%d) >= (%d) numGuests", numConfirmed, (N - 1));
+                    log(() -> {
+                        System.out.printf("Numconfirmed (%d) >= (%d) numGuests%n", numConfirmed, (N - 1));
+                    });
                     complete.set(true);
                     return true;
                 }
@@ -57,7 +88,9 @@ public class Guests implements Runnable {
             if (isCupcake && ID != 0) {
                 // eat the cupcake
                 isCupcake = false;
-                System.out.println(ID + " eats cupcake");
+                log(() -> {
+                    System.out.println(ID + " eats cupcake");
+                });
                 return true;
             }
             return false;
@@ -67,4 +100,14 @@ public class Guests implements Runnable {
 
     }
 
+    public interface logInterface {
+        void printStatement();
+    }
+
+    public void log(logInterface lInterface) {
+
+        if (Party.IS_VERBOSE) {
+            lInterface.printStatement();
+        }
+    }
 }
