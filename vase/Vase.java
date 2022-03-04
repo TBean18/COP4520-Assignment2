@@ -1,7 +1,7 @@
 package vase;
 
 public class Vase {
-    public static final int NUM_THREADS = 99;
+    public static final int NUM_THREADS = 10;
     public static final boolean IS_VERBOSE = false;
 
     static class Timer {

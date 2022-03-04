@@ -17,12 +17,20 @@ public class Guests implements Runnable {
 
     @Override
     public void run() {
+        int returnChancePercent = 100;
         int id = Integer.parseInt(Thread.currentThread().getName());
 
         // Each Thread will start having not seen the vase
         boolean seenVase = false;
         while (!complete.get()) {
-            enterVaseRoom(id, seenVase);
+            // Check if the thread is interested in returning to the showroom
+            if (!seenVase || Math.random() * 100 <= returnChancePercent) {
+                enterVaseRoom(id, seenVase);
+                seenVase = true;
+                returnChancePercent /= 2;
+            } else {
+                break;
+            }
         }
 
     }
@@ -35,11 +43,9 @@ public class Guests implements Runnable {
 
         try {
 
-            if (!seenVase) {
+            if (!seenVase && (numComplete.incrementAndGet() >= Vase.NUM_THREADS)) {
 
-                if (numComplete.incrementAndGet() >= Vase.NUM_THREADS) {
-                    complete.set(true);
-                }
+                complete.set(true);
             }
         } finally {
             guestQueue.unlock(ticket);

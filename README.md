@@ -65,6 +65,7 @@ the `GQueue.java` file.
 
 - Finishing Condition
   - Threads will requeue until it has been detected that all threads have visited the showroom.
+    - To ensure that no single queue will requeue an infinite amount of times, a return chance is reduced by half after each successful visit to the showroom.
   - In this point, the queue is locked, all threads currently waiting in the queue will complete but no more threads can enter.
   - The program will terminate once it has detected that the queue is empty.
 
