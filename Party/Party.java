@@ -1,6 +1,22 @@
 package party;
 
 public class Party {
+    static class Timer {
+
+        long start, end, dur;
+
+        void start() {
+            start = System.currentTimeMillis();
+        }
+
+        long end() {
+
+            end = System.currentTimeMillis();
+            dur = end - start;
+            return (dur);
+        }
+    }
+
     // Development Notes:
     /*
      * The party problem is similar to the prisoner problem disussed in class
@@ -17,9 +33,13 @@ public class Party {
 
     public static void main(String[] args) {
 
+        Timer t = new Timer();
+        t.start();
         Guests g = new Guests(NUM_THREADS);
         startAndWaitForThreads(g);
+        t.end();
         System.out.printf("All %d Guests have Visited the Maze%n", NUM_THREADS);
+        System.out.printf("Computation Completed in %dms", t.dur);
     }
 
     public static void startAndWaitForThreads(Runnable r) {
